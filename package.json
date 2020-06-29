@@ -1,40 +1,82 @@
 {
-	"name": "sfdh",
-	"displayName": "Salesforce Deployment Helper",
-	"description": "Easy Salesforce deployments to any environment. Built to work alongside Salesforce Extensions.",
-	"version": "0.0.1",
-	"engines": {
-		"vscode": "^1.46.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:sfdh.helloWorld"
-	],
-	"main": "./extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "sfdh.helloWorld",
-				"title": "Hello World"
-			}
-		]
-	},
-	"scripts": {
-		"lint": "eslint .",
-		"pretest": "npm run lint",
-		"test": "node ./test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/vscode": "^1.46.0",
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^7.0.2",
-		"@types/node": "^13.11.0",
-		"eslint": "^6.8.0",
-		"glob": "^7.1.6",
-		"mocha": "^7.1.2",
-		"typescript": "^3.8.3",
-		"vscode-test": "^1.3.0"
-	}
+    "name": "sfdh",
+    "displayName": "Salesforce Deployment Helper",
+    "description": "Easy Salesforce deployments to any environment. Requires Salesforce CLI.",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.46.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "workspaceContains:sfdx-project.json"
+    ],
+    "main": "src/index.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "sfdh.addToDeployment",
+                "title": "SFDH: Add to Deployment"
+            },
+            {
+                "command": "sfdh.removeFromDeployment",
+                "title": "SFDH: Remove From Deployment"
+            },
+            {
+                "command": "sfdh.deploy",
+                "title": "SFDH: Deploy to Org"
+            },
+            {
+                "command": "sfdh.clearDeployment",
+                "title": "SFDH: Clear Deployment"
+            },
+            {
+                "command": "sfdh.viewDeployment",
+                "title": "SFDH: View Metadata in Deployment"
+            }
+        ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "sfdh.addToDeployment",
+                    "when": "resourceLangId != 'forcesourcemanifest'"
+                },
+                {
+                    "command": "sfdh.removeFromDeployment",
+                    "when": "resourceLangId != 'forcesourcemanifest'"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "sfdh.deploy",
+                    "when": "sfdh:project_opened"
+                },
+                {
+                    "command": "sfdh.clearDeployment",
+                    "when": "sfdh:project_opened"
+                },
+                {
+                    "command": "sfdh.viewDeployment",
+                    "when": "sfdh:project_opened"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "lint": "eslint .",
+        "pretest": "npm run lint",
+        "test": "node ./test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.46.0",
+        "@types/glob": "^7.1.1",
+        "@types/mocha": "^7.0.2",
+        "@types/node": "^13.11.0",
+        "eslint": "^6.8.0",
+        "glob": "^7.1.6",
+        "mocha": "^7.1.2",
+        "typescript": "^3.8.3",
+        "vscode-test": "^1.3.0"
+    }
 }
