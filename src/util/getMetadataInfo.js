@@ -30,20 +30,17 @@ module.exports = (context) => {
             let buffer = '';
             sfdx.stderr.on('data', (data) => {
                 let text = data.toString();
-                vscode.window.showInformationMessage(`on err data ${text}`);
                 if (text.length > 0) {
                     buffer += text;
                 }
             });
 
             sfdx.stdout.on('data', (data) => {
-                vscode.window.showInformationMessage(`on data`);
                 buffer += data.toString();
             });
 
             sfdx.on('exit', (code) => {
                 // Handle the result + errors (i.e. the text in "buffer") here.
-                vscode.window.showInformationMessage(`on exit ${code}`);
                 if (code === 1) {
                     vscode.window.showErrorMessage(
                         'There was a problem retrieving metadata info from the default project org.'
