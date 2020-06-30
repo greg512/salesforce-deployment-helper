@@ -1,31 +1,39 @@
-# sfdh README
+# Salesforce Deployment Helper
 
-This is the README for your extension "sfdh". After writing up a brief description, we recommend including the following sections.
+Build deployments from a salesforce project and deploy to any org. Requires the [Salesforce Extension Pack](https://marketplace.visualstudio.com/items?itemName=salesforce.salesforcedx-vscode).
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+The following commands are included in the extension:
 
-For example if there is an image subfolder under your extension project workspace:
+### Add to Deployment
 
-\!\[feature X\]\(images/feature-x.png\)
+Adds a source file or directory to a deployment.
+![Add to Deployment](images/add-to-deployment.gif)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Remove From Deployment
+
+Removes a source file or directory from a deployment.
+![Remove From Deployment](images/add-to-deployment.gif)
+
+### Deploy to Org
+
+Deploys the selected metadata to a salesforce environment. You'll be prompted to enter a username or alias for the target org. The target org must have been previously authorized using the `SFDX:Authorize an Org` salesforce extension command or via the `sfdx force:auth:web:login` salesforce cli command.
+![Deploy](images/deploy-metadata.gif)
+
+### View Metadata in Deployment
+
+Shows all of the metadata stored in the current deployment.
+![Deploy](images/view-metadata.gif)
+
+### Clear Deployment
+
+Removes all metadata in the deployment.
+![Deploy](images/clear-deployment.gif)
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+Requires the latest version of the [Salesforce Extension Pack](https://marketplace.visualstudio.com/items?itemName=salesforce.salesforcedx-vscode).
 
 ## Known Issues
 
@@ -33,33 +41,12 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
-Initial release of ...
+Initial release of the Salesforce Deployment Helper. Includes the following features:
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+-   Add to deployment
+-   Remove from deployment
+-   Deploy to org
+-   View current deployment
+-   Clear current deployment

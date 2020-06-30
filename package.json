@@ -1,13 +1,29 @@
 {
     "name": "sfdh",
     "displayName": "Salesforce Deployment Helper",
-    "description": "Easy Salesforce deployments to any environment. Requires Salesforce CLI.",
-    "version": "0.0.1",
+    "description": "Easy Salesforce deployments to any environment. Requires the Salesforce Extensions Pack.",
+    "version": "1.0.0",
+    "repository": {
+        "url": "https://github.com/greg512/salesforce-deployment-helper"
+    },
+    "icon": "images/sfdh-logo.png",
+    "galleryBanner": {
+        "color": "#ECECEC",
+        "theme": "light"
+    },
     "engines": {
         "vscode": "^1.46.0"
     },
+    "license": "SEE LICENSE IN LICENSE.txt",
     "categories": [
         "Other"
+    ],
+    "keywords": [
+        "salesforce",
+        "deployments",
+        "change sets",
+        "sfdx",
+        "sfdh"
     ],
     "activationEvents": [
         "workspaceContains:sfdx-project.json"
