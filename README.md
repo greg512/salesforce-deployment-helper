@@ -14,7 +14,7 @@ Adds a source file or directory to a deployment.
 ### Remove From Deployment
 
 Removes a source file or directory from a deployment.
-![Remove From Deployment](images/add-to-deployment.gif)
+![Remove From Deployment](images/remove-from-deployment.gif)
 
 ### Deploy to Org
 
@@ -34,10 +34,6 @@ Removes all metadata in the deployment.
 ## Requirements
 
 Requires the latest version of the [Salesforce Extension Pack](https://marketplace.visualstudio.com/items?itemName=salesforce.salesforcedx-vscode).
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
 
 ## Release Notes
 
