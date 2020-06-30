@@ -30,7 +30,6 @@ let outputChannel;
 async function activate(context) {
     try {
         outputChannel = vscode.window.createOutputChannel('Salesforce Deployment Helper');
-
         // Add to Deployment command
         let addToDeploymentCmd = vscode.commands.registerCommand('sfdh.addToDeployment', async (sourceUri) => {
             const metadataInfoByFolderName = await getMetadataInfo(context);

@@ -35,7 +35,8 @@ module.exports = async (context, outputChannel) => {
                 return new Promise((resolve) => {
                     // execute the deploy command
                     const sfdx = exec.spawn('sfdx', cmdArguments, {
-                        cwd: vscode.workspace.workspaceFolders[0].uri.path
+                        cwd: vscode.workspace.workspaceFolders[0].uri.fsPath,
+                        shell: true
                     });
                     let isCancelled = false;
                     let buffer = '';

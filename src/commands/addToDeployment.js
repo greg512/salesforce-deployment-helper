@@ -20,6 +20,7 @@ module.exports = (sourceUris, context, outputChannel) => {
     const metadataInfoByFolderName = context.workspaceState.get('metadataInfoByFolderName');
     const deploymentMetadataByXmlName = context.workspaceState.get('deploymentMetadataByXmlName') || {};
     sourceUris.forEach((sourceUri) => {
+        vscode.window.showInformationMessage(sourceUri.path);
         const { metadataName, xmlName } = getMetadataInfoFromPath(sourceUri.path, metadataInfoByFolderName);
 
         // if it's still not valid, show a warning message

@@ -13,6 +13,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+const os = require('os');
+const EOL = os.EOL;
 module.exports = (context, outputChannel) => {
     const deploymentMetadataByXmlName = context.workspaceState.get('deploymentMetadataByXmlName') || {};
 
@@ -23,11 +25,11 @@ module.exports = (context, outputChannel) => {
         outputChannel.appendLine('CURRENT DEPLOYMENT:');
         for (let prop in deploymentMetadataByXmlName) {
             const md = deploymentMetadataByXmlName[prop];
-            formattedOutput += `${prop}\n`;
+            formattedOutput += `${prop}${EOL}`;
             if (md === '*') {
-                formattedOutput += `    ${md}\n`;
+                formattedOutput += `    ${md}${EOL}`;
             } else {
-                formattedOutput += md.reduce((acc, curVal) => (acc += `    ${curVal}\n`), '');
+                formattedOutput += md.reduce((acc, curVal) => (acc += `    ${curVal}${EOL}`), '');
             }
         }
         outputChannel.appendLine(formattedOutput);
