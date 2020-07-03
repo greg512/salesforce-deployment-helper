@@ -14,7 +14,6 @@ Adds a source file or directory to a deployment.
 ### Add Multiple Files to Deployment
 
 Adds multiple source files to a deployment.
-
 ![Add Multiple Files to Deployment](images/add-multiple-to-deployment.gif)
 
 ### Remove From Deployment
@@ -57,5 +56,5 @@ Initial release of the Salesforce Deployment Helper. Includes the following feat
 
 -   WARNING! Upgrading to version 1.0 from version 1.1 will empty your current deployment.
 -   Added the "Add Multiple Files to Deployment" command.
--   Fixed issue that where entire object was deployed when trying to deploy a single child metadata item (i.e., a custom field)
+-   Fixed issue where entire object was deployed when trying to deploy a single child metadata item (i.e., a custom field)
 -   The deployment command now prompts you to select from a list of authorized environments.
