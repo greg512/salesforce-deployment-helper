@@ -14,15 +14,8 @@
  *    limitations under the License.
  */
 const vscode = require('vscode');
-const {
-    addToDeployment,
-    addAllToDeployment,
-    removeFromDeployment,
-    removeAllFromDeployment,
-    deployMetadata,
-    viewDeployment
-} = require('./commands');
-const { getMetadataInfo, getSourceFiles, isUriAMetadataFolder } = require('./util');
+const { addToDeployment, removeFromDeployment, deployMetadata, viewDeployment } = require('./commands');
+const { getSourceFiles } = require('./util');
 let outputChannel;
 /**
  * @param {vscode.ExtensionContext} context
@@ -32,28 +25,29 @@ async function activate(context) {
         outputChannel = vscode.window.createOutputChannel('Salesforce Deployment Helper');
         // Add to Deployment command
         let addToDeploymentCmd = vscode.commands.registerCommand('sfdh.addToDeployment', async (sourceUri) => {
-            const metadataInfoByFolderName = await getMetadataInfo(context);
-            const isMetadataFolder = isUriAMetadataFolder(metadataInfoByFolderName, sourceUri);
-            if (isMetadataFolder) {
-                addAllToDeployment(sourceUri, context, outputChannel);
-            } else {
-                const sourceUris = await getSourceFiles(sourceUri, 'Add to Deployment');
-                addToDeployment(sourceUris, context, outputChannel);
+            // set uri as the active editor there is one
+            if (!sourceUri) {
+                const editor = vscode.window.activeTextEditor;
+                if (editor && editor.document.languageId !== 'forcesourcemanifest') {
+                    sourceUri = editor.document.uri;
+                }
             }
+            const sourceUris = await getSourceFiles(sourceUri, 'Add to Deployment');
+            addToDeployment(sourceUris, context, outputChannel);
+        });
+
+        // Add Multiple Files to Deployment command
+        let addMultipleToDeploymentCmd = vscode.commands.registerCommand('sfdh.addMultipleToDeployment', async () => {
+            const sourceUris = await getSourceFiles(undefined, 'Add to Deployment');
+            addToDeployment(sourceUris, context, outputChannel);
         });
 
         // Remove from Deployment command
         let removeFromDeploymentCmd = vscode.commands.registerCommand(
             'sfdh.removeFromDeployment',
             async (sourceUri) => {
-                const metadataInfoByFolderName = await getMetadataInfo(context);
-                const isMetadataFolder = isUriAMetadataFolder(metadataInfoByFolderName, sourceUri);
-                if (isMetadataFolder) {
-                    removeAllFromDeployment(sourceUri, context, outputChannel);
-                } else {
-                    const sourceUris = await getSourceFiles(sourceUri, 'Remove from Deployment');
-                    removeFromDeployment(sourceUris, context, outputChannel);
-                }
+                const sourceUris = await getSourceFiles(sourceUri, 'Remove from Deployment');
+                removeFromDeployment(sourceUris, context, outputChannel);
             }
         );
 
@@ -64,7 +58,7 @@ async function activate(context) {
 
         // Clear deployment command
         let clearDeployMetadataCmd = vscode.commands.registerCommand('sfdh.clearDeployment', function () {
-            context.workspaceState.update('deploymentMetadataByXmlName', {});
+            context.workspaceState.update('deploymentMetadata', []);
             vscode.window.showInformationMessage(`Removed all metadata from the deployment.`);
         });
 
@@ -75,6 +69,7 @@ async function activate(context) {
 
         context.subscriptions.push(
             addToDeploymentCmd,
+            addMultipleToDeploymentCmd,
             removeFromDeploymentCmd,
             deployMetadataCmd,
             clearDeployMetadataCmd,
@@ -90,14 +85,13 @@ exports.activate = activate;
 
 // this method is called when your extension is deactivated
 function deactivate() {
-    console.log('deactivate sfdh');
     vscode.commands.executeCommand('setContext', 'sfdh:project_opened', false);
     // dispose the channel
     if (outputChannel && outputChannel.dispose) {
         outputChannel.dispose();
     }
     // clear the metadata info from workplace state
-    context.workspaceState.update('metadataInfoByFolderName', null);
+    context.workspaceState.update('deploymentMetadata', null);
 }
 
 module.exports = {

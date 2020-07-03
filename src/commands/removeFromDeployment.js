@@ -14,48 +14,59 @@
  *    limitations under the License.
  */
 const vscode = require('vscode');
-const viewDeployment = require('./viewDeployment');
-const { getMetadataInfoFromPath } = require('../util');
-module.exports = (sourceUris, context, outputChannel) => {
-    const metadataInfoByFolderName = context.workspaceState.get('metadataInfoByFolderName');
-    const deploymentMetadataByXmlName = context.workspaceState.get('deploymentMetadataByXmlName') || {};
+const { getMetadataInfoFromPath, getMetadataInfo, getPathForDeployment } = require('../util');
+const os = require('os');
+const EOL = os.EOL;
+module.exports = async (sourceUris, context, outputChannel) => {
+    const metadataInfoByFolderName = await getMetadataInfo(context);
+    const deploymentMetadata = context.workspaceState.get('deploymentMetadata') || [];
+    const removedMetadata = [];
     sourceUris.forEach((sourceUri) => {
-        const { metadataName, xmlName, directoryName } = getMetadataInfoFromPath(
-            sourceUri.path,
+        // remove if there's an exact match
+        const { metadataName, directoryName, isMetadataFolder } = getMetadataInfoFromPath(
+            sourceUri,
             metadataInfoByFolderName
         );
+        const fsPath = getPathForDeployment(sourceUri.fsPath, isMetadataFolder, directoryName, metadataName);
+        const mdIndex = deploymentMetadata.findIndex((md) => md.fsPath === fsPath);
+        if (mdIndex > -1) {
+            removedMetadata.push(...deploymentMetadata.splice(mdIndex, 1));
+            return;
+        }
 
         // if it's still not valid, throw an error
         if (!metadataName) {
             vscode.window.showErrorMessage(
-                `Error! Unable to match the selected metadata to a valid metadata type: ${sourceUri.path}`
+                `Error! Unable to match the selected metadata to a valid metadata type: ${sourceUri.fsPath}`
             );
             return;
         }
 
         // warn the user if removing an indidivual file but all metadata of this type is in the deployment
-        const metadataList = deploymentMetadataByXmlName[xmlName] || [];
-        if (metadataList === '*') {
-            vscode.window.showWarningMessage(
-                `Warning! ${metadataName} was not removed. First, use the "Remove from Deployment" command on the ${directoryName} folder, then add the individual metadata items to the deployment.`
+        if (!isMetadataFolder) {
+            const includesAllMetadata = deploymentMetadata.some(
+                (md) => md.directoryName === directoryName && md.isMetadataFolder
             );
-            return;
+            if (includesAllMetadata) {
+                vscode.window.showWarningMessage(
+                    `Warning! ${metadataName} was not removed. First, use the "Remove from Deployment" command on the ${directoryName} folder, then add the individual metadata items to the deployment.`
+                );
+                return;
+            }
         }
 
-        // remove from the deployment
-        if (metadataList.includes(metadataName)) {
-            deploymentMetadataByXmlName[xmlName] = metadataList.filter((md) => md !== metadataName);
-            // remove the metadata type if the list is empty
-            if (deploymentMetadataByXmlName[xmlName].length === 0) {
-                delete deploymentMetadataByXmlName[xmlName];
-            }
-        } else {
-            vscode.window.showInformationMessage(`${metadataName} isn't in the deployment.`);
-        }
+        vscode.window.showInformationMessage(`${metadataName} isn't in the deployment.`);
     });
 
     // update the deployment
-    context.workspaceState.update('deploymentMetadataByXmlName', deploymentMetadataByXmlName);
-    viewDeployment(context, outputChannel);
-    vscode.window.showInformationMessage(`Finished removing metadata to the deployment.`);
+    if (removedMetadata.length > 0) {
+        context.workspaceState.update('deploymentMetadata', deploymentMetadata);
+        console.log(removedMetadata);
+        outputChannel.appendLine(
+            `${EOL}REMOVED METADATA ${EOL}${removedMetadata
+                .map((md) => `${md.xmlName} - ${md.metadataName}`)
+                .join(EOL)}`
+        );
+        vscode.window.showInformationMessage(`Removed metadata from the deployment`);
+    }
 };

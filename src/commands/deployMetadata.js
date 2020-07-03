@@ -16,12 +16,16 @@
 const vscode = require('vscode');
 const exec = require('child_process');
 const { YES, TEST_LEVEL_OPTIONS, YES_NO_OPTIONS } = require('../constants');
+const { getAuthorizedOrgs } = require('../util');
 
 module.exports = async (context, outputChannel) => {
     try {
         // get the deploy command arguments
-        const deploymentMetadataByXmlName = context.workspaceState.get('deploymentMetadataByXmlName') || {};
-        const cmdArguments = await getDeployCmdArguments(deploymentMetadataByXmlName);
+        const deploymentMetadata = context.workspaceState.get('deploymentMetadata') || [];
+        if (deploymentMetadata.length === 0) {
+            throw new Error('There is no metadata in your deployment.');
+        }
+        const cmdArguments = await getDeployCmdArguments(deploymentMetadata);
         outputChannel.appendLine(cmdArguments.join(' '));
         outputChannel.show(true);
         // show the progress indicator while deploying
@@ -82,16 +86,34 @@ module.exports = async (context, outputChannel) => {
     }
 };
 
-async function getDeployCmdArguments(deploymentMetadataByXmlName) {
+async function getDeployCmdArguments(deploymentMetadata) {
     // base arguments for the command
     const cmdArguments = ['force:source:deploy', '--json', '--loglevel', 'fatal'];
-    // get the formatted metadata for command
-    const deployMdStr = formatMetadata(deploymentMetadataByXmlName);
+
+    const aliasOptions = [];
+
+    await vscode.window.withProgress(
+        {
+            location: vscode.ProgressLocation.Notification,
+            title: 'Getting available target orgs...'
+        },
+        async () => {
+            const orgs = await getAuthorizedOrgs();
+            orgs.forEach((org) => {
+                if (org.isDefaultUsername) {
+                    aliasOptions.unshift(org.alias || org.username);
+                } else {
+                    aliasOptions.push(org.alias || org.username);
+                }
+            });
+        }
+    );
+
     // ask the user to enter the username of the target org
-    const targetUsername = await showInputBox({
-        prompt: 'Target Username or Alias',
-        placeHolder: 'Leave blank to use the project default'
+    const targetUsername = await showQuickPick(aliasOptions, {
+        placeHolder: 'Target Username/Alias. Leave blank to use the project default.'
     });
+
     // set the test level for the deployment
     const testLevel = await showQuickPick(TEST_LEVEL_OPTIONS, {
         placeHolder: 'Specify which level of deployment tests to run.'
@@ -102,7 +124,7 @@ async function getDeployCmdArguments(deploymentMetadataByXmlName) {
     });
 
     // add the user defined params
-    cmdArguments.push('-m', deployMdStr);
+    cmdArguments.push('-p', `"${deploymentMetadata.map((md) => md.fsPath).join(',')}"`);
     cmdArguments.push('-l', testLevel);
     if (checkOnly === YES) {
         cmdArguments.push('-c');
@@ -126,43 +148,4 @@ async function showQuickPick(items, quickPickOpts) {
         throw new Error('cancelled');
     }
     return result;
-}
-
-/**
- * Show vs code extension input box.
- *
- * @param {Object} inputOpts VS Code Extension InputBoxOptions
- * @returns {Promise<String>} The value entered by the user.
- */
-async function showInputBox(inputOpts) {
-    const result = await vscode.window.showInputBox(inputOpts);
-    if (result === undefined) {
-        throw new Error('cancelled');
-    }
-    return result;
-}
-
-/**
- * Format the deployment metadata so it can be passed to the
- *  force:source:deploy --metadata param
- *
- * @param {Object} deploymentMetadataByXmlName Selected metadata to deploy grouped by the xml name
- * @returns {String} A comma-separated list of names of metadata components to deploy to the org
- */
-function formatMetadata(deploymentMetadataByXmlName) {
-    const deployMdList = [];
-    for (let prop in deploymentMetadataByXmlName) {
-        if (deploymentMetadataByXmlName[prop]) {
-            let mdToDeploy = deploymentMetadataByXmlName[prop];
-            let deployStr = prop;
-            if (mdToDeploy !== '*') {
-                deployStr = mdToDeploy.map((md) => `${prop}:${md}`).join();
-            }
-            deployMdList.push(deployStr);
-        }
-    }
-    if (deployMdList.length === 0) {
-        throw new Error('There is no metadata in your deployment.');
-    }
-    return deployMdList.join();
 }

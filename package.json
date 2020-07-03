@@ -37,6 +37,10 @@
                 "title": "SFDH: Add to Deployment"
             },
             {
+                "command": "sfdh.addMultipleToDeployment",
+                "title": "SFDH: Add Multiple Files to Deployment"
+            },
+            {
                 "command": "sfdh.removeFromDeployment",
                 "title": "SFDH: Remove From Deployment"
             },

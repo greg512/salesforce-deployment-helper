@@ -11,6 +11,12 @@ The following commands are included in the extension:
 Adds a source file or directory to a deployment.
 ![Add to Deployment](images/add-to-deployment.gif)
 
+### Add Multiple Files to Deployment
+
+Adds multiple source files to a deployment.
+
+![Add Multiple Files to Deployment](images/add-multiple-to-deployment.gif)
+
 ### Remove From Deployment
 
 Removes a source file or directory from a deployment.
@@ -18,7 +24,7 @@ Removes a source file or directory from a deployment.
 
 ### Deploy to Org
 
-Deploys the selected metadata to a salesforce environment. You'll be prompted to enter a username or alias for the target org. The target org must have been previously authorized using the `SFDX:Authorize an Org` salesforce extension command or via the `sfdx force:auth:web:login` salesforce cli command.
+Deploys the selected metadata to a salesforce environment. You'll be prompted to select a target org from a list of your authorized environments.
 ![Deploy](images/deploy-metadata.gif)
 
 ### View Metadata in Deployment
@@ -46,3 +52,10 @@ Initial release of the Salesforce Deployment Helper. Includes the following feat
 -   Deploy to org
 -   View current deployment
 -   Clear current deployment
+
+### 2.0.0
+
+-   WARNING! Upgrading to version 2 from version 1 will empty your current deployment.
+-   Added the "Add Multiple Files to Deployment" command.
+-   Fixed issue that forced you to deploy an entire object if trying to deploy a single child metadata item (i.e., a custom field)
+-   The deployment command now prompts you to select from a list of authorized environments.

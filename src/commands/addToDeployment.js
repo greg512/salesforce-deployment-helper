@@ -15,34 +15,55 @@
  */
 const vscode = require('vscode');
 const viewDeployment = require('./viewDeployment');
-const { getMetadataInfoFromPath } = require('../util');
-module.exports = (sourceUris, context, outputChannel) => {
-    const metadataInfoByFolderName = context.workspaceState.get('metadataInfoByFolderName');
-    const deploymentMetadataByXmlName = context.workspaceState.get('deploymentMetadataByXmlName') || {};
+const { getMetadataInfoFromPath, getMetadataInfo, getPathForDeployment } = require('../util');
+const path = require('path');
+module.exports = async (sourceUris, context, outputChannel) => {
+    const metadataInfoByFolderName = await getMetadataInfo(context);
+    const deploymentMetadata = context.workspaceState.get('deploymentMetadata') || [];
+    const newMetadata = [];
     sourceUris.forEach((sourceUri) => {
-        const { metadataName, xmlName } = getMetadataInfoFromPath(sourceUri.path, metadataInfoByFolderName);
+        // check if this metadata is already in the deployment
+        const alreadyInDeployment = deploymentMetadata.some((md) => md.fsPath === sourceUri.fsPath);
+        if (alreadyInDeployment) return;
+        const { metadataName, directoryName, isMetadataFolder, xmlName } = getMetadataInfoFromPath(
+            sourceUri,
+            metadataInfoByFolderName
+        );
 
         // if it's still not valid, show a warning message
         if (!metadataName) {
             vscode.window.showWarningMessage(
-                `Warning: Unable to match the "${sourceUri.path}" to a valid metadata type.`
+                `Warning: Unable to match the "${sourceUri.fsPath}" to a valid metadata type.`
             );
             return;
         }
 
         // check if deployment already included or if all are selected
-        if (!deploymentMetadataByXmlName[xmlName]) {
-            deploymentMetadataByXmlName[xmlName] = [];
-        } else if (deploymentMetadataByXmlName[xmlName] === '*') {
-            vscode.window.showInformationMessage(`The deployment already includes all ${xmlName} metadata.`);
-            return;
+        if (!isMetadataFolder) {
+            const includesAllMetadata = deploymentMetadata.some((md) => md.xmlName === xmlName && md.isMetadataFolder);
+            if (includesAllMetadata) {
+                vscode.window.showWarningMessage(
+                    `The deployment already includes all ${directoryName} metadata. Remove the folder first if you want to only deploy ${metadataName}.`
+                );
+                return;
+            }
         }
-        // add to the deployment
-        if (!deploymentMetadataByXmlName[xmlName].includes(metadataName)) {
-            deploymentMetadataByXmlName[xmlName].push(metadataName);
-        }
+
+        let fsPath = getPathForDeployment(sourceUri.fsPath, isMetadataFolder, directoryName, metadataName);
+        const splitPath = fsPath.split(path.sep);
+        const metadataStartIndex = splitPath.indexOf(directoryName);
+        newMetadata.push({
+            fsPath,
+            isMetadataFolder,
+            metadataName,
+            xmlName,
+            splitPath: splitPath.slice(metadataStartIndex)
+        });
     });
-    context.workspaceState.update('deploymentMetadataByXmlName', deploymentMetadataByXmlName);
-    viewDeployment(context, outputChannel);
-    vscode.window.showInformationMessage(`Finished adding metadata to the deployment.`);
+    if (newMetadata.length > 0) {
+        deploymentMetadata.push(...newMetadata);
+        context.workspaceState.update('deploymentMetadata', deploymentMetadata);
+        viewDeployment(context, outputChannel);
+        vscode.window.showInformationMessage(`Finished adding metadata to the deployment.`);
+    }
 };

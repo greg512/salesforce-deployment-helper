@@ -20,16 +20,11 @@ module.exports = async (sourceUri, selectFilesLabel) => {
         if (sourceUri) {
             sourceUris.push(sourceUri);
         } else {
-            const editor = vscode.window.activeTextEditor;
-            if (editor && editor.document.languageId !== 'forcesourcemanifest') {
-                sourceUris.push(editor.document.uri);
-            } else {
-                sourceUris = await vscode.window.showOpenDialog({
-                    openLabel: selectFilesLabel,
-                    canSelectMany: true,
-                    defaultUri: vscode.workspace.workspaceFolders[0].uri
-                });
-            }
+            sourceUris = await vscode.window.showOpenDialog({
+                openLabel: selectFilesLabel,
+                canSelectMany: true,
+                defaultUri: vscode.workspace.workspaceFolders[0].uri
+            });
             // throw an error if no valid source files or directories are found
             if (sourceUris.length === 0) {
                 const errorMessage = 'You can only select source files or directories.';
