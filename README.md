@@ -53,9 +53,9 @@ Initial release of the Salesforce Deployment Helper. Includes the following feat
 -   View current deployment
 -   Clear current deployment
 
-### 2.0.0
+### 1.1.0
 
--   WARNING! Upgrading to version 2 from version 1 will empty your current deployment.
+-   WARNING! Upgrading to version 1.0 from version 1.1 will empty your current deployment.
 -   Added the "Add Multiple Files to Deployment" command.
--   Fixed issue that forced you to deploy an entire object if trying to deploy a single child metadata item (i.e., a custom field)
+-   Fixed issue that where entire object was deployed when trying to deploy a single child metadata item (i.e., a custom field)
 -   The deployment command now prompts you to select from a list of authorized environments.
