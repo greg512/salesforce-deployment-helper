@@ -2,7 +2,7 @@
     "name": "sfdh",
     "displayName": "Salesforce Deployment Helper",
     "description": "Easy Salesforce deployments to any environment. Requires the Salesforce Extensions Pack.",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "publisher": "greglovelidge",
     "repository": {
         "url": "https://github.com/greg512/salesforce-deployment-helper"
