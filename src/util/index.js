@@ -19,3 +19,4 @@ exports.getSourceFiles = require('./getSourceFiles');
 exports.isUriAMetadataFolder = require('./isUriAMetadataFolder');
 exports.getPathForDeployment = require('./getPathForDeployment');
 exports.getAuthorizedOrgs = require('./getAuthorizedOrgs');
+exports.Traversal = require('./traversal');

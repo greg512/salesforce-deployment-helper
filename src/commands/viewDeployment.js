@@ -15,6 +15,7 @@
  */
 const os = require('os');
 const EOL = os.EOL;
+const { Traversal } = require('../util');
 module.exports = (context, outputChannel) => {
     const deploymentMetadata = context.workspaceState.get('deploymentMetadata') || [];
     if (deploymentMetadata.length === 0) {
@@ -42,41 +43,16 @@ module.exports = (context, outputChannel) => {
                 return r[name];
             }, level);
         });
+        // Output the formatted, current metadata list
         outputChannel.appendLine(EOL + 'CURRENT DEPLOYMENT METADATA');
-        traverse(result, 0);
-        outputChannel.show(true);
-    }
-
-    function traverse(x, level) {
-        if (isArray(x)) {
-            traverseArray(x);
-        } else if (typeof x === 'object' && x !== null) {
-            traverseObject(x);
-        } else {
+        new Traversal(result, (val, level) => {
             let indentSpace = '';
             if (level === 0) indentSpace = EOL + indentSpace;
             for (let i = 0; i < level; i++) {
-                indentSpace += '  ';
+                indentSpace += '    ';
             }
-            outputChannel.appendLine(indentSpace + x);
-        }
-    }
-
-    function traverseArray(arr) {
-        arr.forEach(function (x) {
-            traverse(x);
+            outputChannel.appendLine(indentSpace + val);
         });
-    }
-
-    function traverseObject(obj) {
-        for (var key in obj) {
-            if (obj.hasOwnProperty(key) && key !== 'level') {
-                traverse(obj[key], obj.level);
-            }
-        }
-    }
-
-    function isArray(o) {
-        return Object.prototype.toString.call(o) === '[object Array]';
+        outputChannel.show(true);
     }
 };
