@@ -63,9 +63,7 @@ module.exports = async (sourceUris, context, outputChannel) => {
         context.workspaceState.update('deploymentMetadata', deploymentMetadata);
         console.log(removedMetadata);
         outputChannel.appendLine(
-            `${EOL}REMOVED METADATA ${EOL}${removedMetadata
-                .map((md) => `${md.xmlName} - ${md.metadataName}`)
-                .join(EOL)}`
+            `${EOL}REMOVED METADATA ${EOL}${removedMetadata.map((md) => `${md.fsPath}`).join(EOL)}`
         );
         vscode.window.showInformationMessage(`Removed metadata from the deployment`);
     }
