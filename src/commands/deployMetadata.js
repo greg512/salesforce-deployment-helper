@@ -95,10 +95,11 @@ async function getDeployCmdArguments(deploymentMetadata) {
     await vscode.window.withProgress(
         {
             location: vscode.ProgressLocation.Notification,
-            title: 'Getting available target orgs...'
+            title: 'Getting available target orgs...',
+            cancellable: true
         },
-        async () => {
-            const orgs = await getAuthorizedOrgs();
+        async (progress, token) => {
+            const orgs = await getAuthorizedOrgs(token);
             orgs.forEach((org) => {
                 if (org.isDefaultUsername) {
                     aliasOptions.unshift(org.alias || org.username);

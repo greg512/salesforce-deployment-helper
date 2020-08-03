@@ -47,7 +47,8 @@ module.exports = (context) => {
                     );
                     reject(buffer);
                 } else {
-                    const response = JSON.parse(buffer);
+                    const parsedBuffer = buffer.slice(buffer.indexOf('{'), buffer.lastIndexOf('}') + 1);
+                    const response = JSON.parse(parsedBuffer);
                     metadataInfoByFolderName = {};
                     response.result.metadataObjects.forEach((md) => {
                         metadataInfoByFolderName[md.directoryName] = md;

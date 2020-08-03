@@ -15,7 +15,7 @@
  */
 const exec = require('child_process');
 const vscode = require('vscode');
-module.exports = () => {
+module.exports = (token) => {
     try {
         return new Promise((resolve, reject) => {
             const sfdx = exec.spawn('sfdx', ['force:org:list', '--json'], {
@@ -40,7 +40,8 @@ module.exports = () => {
                     vscode.window.showErrorMessage('There was a problem getting the list of authorized orgs.');
                     reject(buffer);
                 } else {
-                    const response = JSON.parse(buffer) || {};
+                    const parsedBuffer = buffer.slice(buffer.indexOf('{'), buffer.lastIndexOf('}') + 1);
+                    const response = JSON.parse(parsedBuffer) || {};
                     const orgList = [];
                     if (response.result) {
                         orgList.push(...response.result.nonScratchOrgs);
@@ -48,6 +49,12 @@ module.exports = () => {
                     }
                     resolve(orgList);
                 }
+            });
+
+            // handle canceling from the progress dialog
+            token.onCancellationRequested(() => {
+                sfdx.kill();
+                vscode.window.showInformationMessage('Deployment Cancelled');
             });
         });
     } catch (error) {
